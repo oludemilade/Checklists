@@ -43,7 +43,7 @@
                     <navigationItem key="navigationItem" title="Checklists" id="l0q-uB-rFw" userLabel="Checklists">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ihp-hZ-hej">
                             <connections>
-                                <segue destination="VBA-J4-KmV" kind="presentation" id="PWi-0P-J4D"/>
+                                <segue destination="VBA-J4-KmV" kind="presentation" identifier="AddItem" id="PWi-0P-J4D"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

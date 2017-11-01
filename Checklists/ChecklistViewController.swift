@@ -8,7 +8,25 @@
 
 import UIKit
 
-class ChecklistViewController: UITableViewController {
+class ChecklistViewController: UITableViewController, AddItemViewControllerDelegate {
+    
+    // MARK: This is to conform to AddItemViewController Protocol
+    func addItemViewControllerDidCancel(_ controller: AddItemViewController) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func addItemViewController(_ controller: AddItemViewController, didFinishAdding item: ChecklistItem) {
+        let newRowIndex = items.count
+        items.append(item)
+        
+        let indexPath = IndexPath(row: newRowIndex, section: 0)
+        let indexPaths = [indexPath]
+        tableView.insertRows(at: indexPaths, with: .automatic)
+        
+        dismiss(animated: true, completion: nil)
+    }
+    
+    // MARK: This is the variable definitions
     var row0item: ChecklistItem
     var row1item: ChecklistItem
     var row2item: ChecklistItem
@@ -16,6 +34,7 @@ class ChecklistViewController: UITableViewController {
     var row4item: ChecklistItem
     var items: [ChecklistItem]
     
+    // MARK: This is the variable initialization
     required init?(coder aDecoder: NSCoder) {
         items = [ChecklistItem]()
         
@@ -101,18 +120,18 @@ class ChecklistViewController: UITableViewController {
         label.text = item.text
     }
     
-    @IBAction func addItem() {
-        let newRowIndex = items.count
-        
-        let item = ChecklistItem()
-        item.text = "I am a new row"
-        item.checked = false
-        
-        items.append(item)
-        
-        let indexPath = IndexPath(row: newRowIndex, section: 0)
-        let indexPaths = [indexPath]
-        tableView.insertRows(at: indexPaths, with: .automatic)
+    
+    // MARK: UIKit segue that allows view controller to be notified of delegate
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Since you may have multiple segue's, it is a good idea to have a unique identifier
+        if segue.identifier == "AddItem" {
+            // Since you don't go directly to the AddItemViewController, but the Navigation controller
+            let navigationController = segue.destination as! UINavigationController
+            // We find the Add view controller in the topView Contrrller of the navigation ccontroller
+            let controller = navigationController.topViewController as! AddItemViewController
+            // In this case, since we are editing the checklist view controller, the self refers to the Checklistview conreoller. With that the connection is complete.
+            controller.delegate = self
+        }
     }
 }
 
