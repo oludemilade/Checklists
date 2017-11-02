@@ -8,14 +8,14 @@
 
 import UIKit
 
-class ChecklistViewController: UITableViewController, AddItemViewControllerDelegate {
+class ChecklistViewController: UITableViewController, ItemDetailViewControllerDelegate {
     
-    // MARK: This is to conform to AddItemViewController Protocol
-    func addItemViewControllerDidCancel(_ controller: AddItemViewController) {
+    // MARK: This is to conform to ItemDetailViewController Protocol
+    func itemDetailViewControllerDidCancel(_ controller: ItemDetailViewController) {
         dismiss(animated: true, completion: nil)
     }
     
-    func addItemViewController(_ controller: AddItemViewController, didFinishAdding item: ChecklistItem) {
+    func itemDetailViewController(_ controller: ItemDetailViewController, didFinishAdding item: ChecklistItem) {
         let newRowIndex = items.count
         items.append(item)
         
@@ -23,6 +23,16 @@ class ChecklistViewController: UITableViewController, AddItemViewControllerDeleg
         let indexPaths = [indexPath]
         tableView.insertRows(at: indexPaths, with: .automatic)
         
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func itemDetailViewController(_ controller: ItemDetailViewController, didFinishEditing item: ChecklistItem) {
+        if let index = items.index(of: item){
+            let indexPath = IndexPath(row: index, section: 0)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                configureText(for: cell, with: item)
+            }
+        }
         dismiss(animated: true, completion: nil)
     }
     
@@ -108,10 +118,11 @@ class ChecklistViewController: UITableViewController, AddItemViewControllerDeleg
     }
     
     func configureCheckmark(for cell: UITableViewCell, with item:ChecklistItem){
+        let label = cell.viewWithTag(1001) as! UILabel
         if item.checked {
-            cell.accessoryType = .checkmark
+            label.text = "√"
         } else {
-            cell.accessoryType = .none
+            label.text = ""
         }
     }
     
@@ -125,12 +136,23 @@ class ChecklistViewController: UITableViewController, AddItemViewControllerDeleg
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Since you may have multiple segue's, it is a good idea to have a unique identifier
         if segue.identifier == "AddItem" {
-            // Since you don't go directly to the AddItemViewController, but the Navigation controller
+            // Since you don't go directly to the ItemDetailViewController, but the Navigation controller
             let navigationController = segue.destination as! UINavigationController
-            // We find the Add view controller in the topView Contrrller of the navigation ccontroller
-            let controller = navigationController.topViewController as! AddItemViewController
+            // We find the Add view controller in the topView Controller of the navigation ccontroller
+            let controller = navigationController.topViewController as! ItemDetailViewController
             // In this case, since we are editing the checklist view controller, the self refers to the Checklistview conreoller. With that the connection is complete.
             controller.delegate = self
+        } else if segue.identifier == "EditItem" {
+            // Since you don't go directly to the ItemDetailViewController, but the Navigation controller
+            let navigationController = segue.destination as! UINavigationController
+            // We find the Add view controller in the topView Controller of the navigation ccontroller
+            let controller = navigationController.topViewController as! ItemDetailViewController
+            
+            controller.delegate = self
+            
+            if let indexPath = tableView.indexPath(for: sender as! UITableViewCell){
+                controller.itemToEdit = items[indexPath.row]
+            }
         }
     }
 }
